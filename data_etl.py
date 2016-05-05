@@ -1,7 +1,7 @@
 # -* - coding: UTF-8 -* -  
 import ConfigParser
 from pyspark import SparkContext
-import time,datetime
+import time
 
 
 '''定义函数'''
@@ -32,18 +32,18 @@ config = ConfigParser.ConfigParser()
 config.read('para.conf')
 #spark配置参数[spark_conf]
 spark_host = config.get('spark_conf', 'spark_host')
-spark_read_data = config.get('spark_conf', 'spark_read_data')
-spark_write_data = config.get('spark_conf', 'spark_write_data')
-spark_app_name = config.get('spark_conf', 'spark_app_name')
 spark_mode = config.get('spark_conf', 'spark_mode')
 #程序中其他参数[etl]
+app_name = config.get('etl', 'app_name')
+read_data = config.get('etl', 'etl_read_data')
+write_data = config.get('etl', 'etl_write_data')
 extract_fields_names = config.get('etl', 'extract_fields_names')
 extract_fields_indexes = config.get('etl', 'extract_fields_indexes')
 
 
 '''数据处理'''
-sc = SparkContext(spark_mode, spark_app_name)
-netlogs = sc.textFile(spark_host+spark_read_data)
+sc = SparkContext(spark_mode, app_name)
+netlogs = sc.textFile(spark_host+read_data)
 st_data  = netlogs.map(lambda line: etl(line, extract_fields_indexes)) \
 				  .sortBy(lambda x: (x.split(',')[0], x.split(',')[1]))
-st_data.saveAsTextFile(spark_host+spark_write_data)
+st_data.saveAsTextFile(spark_host+write_data)
